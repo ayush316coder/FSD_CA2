@@ -64,6 +64,39 @@ router.get("/", async (req, res) => {
 });
 
 
+// 3. PATCH - Updating Feedback Status
+router.patch("/:id", async (req, res) => {
+    try {
+        const { status } = req.body;
 
+        if (!["Pending", "Reviewed"].includes(status)) {
+            return res.status(400).json({
+                message: "Invalid status"
+            });
+        }
+
+        const feedback = await Feedback.findByIdAndUpdate(
+            req.params.id,
+            { status },
+            { new: true, runValidators: true }
+        );
+
+        if (!feedback) {
+            return res.status(404).json({
+                message: "Feedback not found"
+            });
+        }
+
+        res.status(200).json({
+            message: "Feedback status updated successfully",
+            data: feedback
+        });
+
+    } catch (error) {
+        res.status(400).json({
+            message: error.message
+        });
+    }
+});
 
 module.exports = router;
